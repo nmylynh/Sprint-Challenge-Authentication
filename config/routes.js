@@ -27,7 +27,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
       const { username, password } = req.body;
-      var token = null;
+      let token = null;
 
       const user = await userDB.login(username);
 
