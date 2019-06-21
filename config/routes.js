@@ -27,7 +27,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
       const { username, password } = req.body;
-      let token = null;
+      var token = null;
 
       const user = await userDB.login(username);
 
@@ -38,6 +38,19 @@ const login = async (req, res) => {
   } catch(err) {
       res.status(500).json({ success: false, err })
   }
+}
+
+function generateToken(user) {
+  const payload = {
+      subject: user.id,
+      username: user.username
+  };
+
+  const options = {
+      expiresIn: '1d',
+  };
+
+  return jwt.sign(payload, secrets.jwtSecret, options);
 }
 
 function getJokes(req, res) {
