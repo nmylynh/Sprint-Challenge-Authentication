@@ -1,5 +1,6 @@
 const axios = require('axios');
 const userDB = require('../models/auth-model');
+const bcrypt = require('bcryptjs');
 
 const { authenticate } = require('../auth/authenticate');
 
