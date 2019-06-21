@@ -8,12 +8,34 @@ module.exports = server => {
   server.get('/api/jokes', authenticate, getJokes);
 };
 
-function register(req, res) {
-  // implement user registration
+const register = async (req, res) => {
+  try {
+      let newUser = req.body;
+
+      const hash = bcrypt.hashSync(newUser.password, 14);
+      newUser.password = hash;
+
+      const savedUser = await userDB.register(newUser); 
+      res.status(201).json(savedUser);
+  } catch(err) {
+      res.status(500).json({success: false, err});
+  }
 }
 
-function login(req, res) {
-  // implement user login
+const login = async (req, res) => {
+  try {
+      const { username, password } = req.body;
+      let token = null;
+
+      const user = await userDB.login(username);
+
+      user && bcrypt.compareSync(password, user.password)
+      ? (token = generateToken(user),
+      res.status(200).json({ message: `Welcome ${user.username}!`, token }))
+      : res.status(401).json({ message: 'Invalid credentials.' });
+  } catch(err) {
+      res.status(500).json({ success: false, err })
+  }
 }
 
 function getJokes(req, res) {
