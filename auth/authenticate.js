@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+secrets = require('../config/secrets');
 
 const jwtKey =
   process.env.JWT_SECRET ||
@@ -10,20 +11,34 @@ module.exports = {
 };
 
 // implementation details
+// function authenticate(req, res, next) {
+//   const token = req.get('Authorization');
+
+//   if (token) {
+//     jwt.verify(token, jwtKey, (err, decoded) => {
+//       if (err) return res.status(401).json(err);
+
+//       req.decoded = decoded;
+
+//       next();
+//     });
+//   } else {
+//     return res.status(401).json({
+//       error: 'No token provided, must be set on the Authorization Header',
+//     });
+//   }
+// }
+
+
 function authenticate(req, res, next) {
-  const token = req.get('Authorization');
 
-  if (token) {
-    jwt.verify(token, jwtKey, (err, decoded) => {
-      if (err) return res.status(401).json(err);
+    const token = req.headers.authorization;
 
-      req.decoded = decoded;
-
-      next();
-    });
-  } else {
-    return res.status(401).json({
-      error: 'No token provided, must be set on the Authorization Header',
-    });
-  }
+    token
+    ? jwt.verify(token, secrets.jwtSecret, (err, decodeToken) => {
+        err
+        ? res.status(401).json({ message: 'Invalid credentials.' })
+        : next()
+    })
+    : res.status(400).json({ message: 'No token provided.' });
 }
